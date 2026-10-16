@@ -1366,8 +1366,9 @@
       });
       document.getElementById('tab7-matched-terms-count').textContent = matched;
       const p = document.getElementById('tab7-predicted-level');
-      if(matched>=6 && words>50) p.innerHTML="<span class='text-emerald-600'>Level 3 (5-6)</span>";
-      else if(matched>=3) p.innerHTML="<span class='text-sky-600'>Level 2 (3-4)</span>";
+      
+      if(matched>=6 && words>=40) p.innerHTML="<span class='text-emerald-600'>Level 3 (5-6)</span>";
+      else if(matched>=4 && words>=25) p.innerHTML="<span class='text-sky-600'>Level 2 (3-4)</span>";
       else if(words>10) p.innerHTML="<span class='text-amber-600'>Level 1 (1-2)</span>";
       else p.textContent="Start typing...";
     }
@@ -1375,8 +1376,21 @@
     function evaluateAndShowModels() {
       const text = document.getElementById('tab7-student-answer').value;
       const q = tab7Questions[currentTab7QId];
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
       let matched = 0; q.terms.forEach(t => { if(t.regex.test(text)) matched++; });
-      let score = 0; if(matched>=6) score=6; else if(matched>=4) score=4; else if(matched>=2) score=2; else if(text.length>20) score=1;
+      
+      let score = 0; 
+      if (matched >= 6) {
+          if (words >= 40) score = 6;
+          else score = 2; // Penalized for keyword stuffing
+      } else if (matched >= 4) {
+          if (words >= 25) score = 4;
+          else score = 2;
+      } else if (matched >= 2) {
+          score = 2;
+      } else if (words > 10) {
+          score = 1;
+      }
       
       tab7Scores[currentTab7QId] = score; tab7Evaluated[currentTab7QId] = true;
       document.getElementById('tab7-current-mark-display').textContent = `Mark: ${score} / 6`;
@@ -1389,7 +1403,12 @@
       document.getElementById('tab7-models-section').classList.remove('hidden');
       document.getElementById('tab7-models-placeholder').classList.add('hidden');
       document.getElementById('tab7-honesty-btn').classList.remove('hidden');
-      showToast(`Q${currentTab7QId} Evaluated: ${score}/6 marks`, "bg-indigo-600");
+      
+      if (score <= 2 && matched >= 4) {
+          showToast(`Q${currentTab7QId} Evaluated: ${score}/6 marks. Your word count was too low to score higher! Explain your points.`, "bg-amber-600");
+      } else {
+          showToast(`Q${currentTab7QId} Evaluated: ${score}/6 marks`, "bg-indigo-600");
+      }
     }
     
     function applyHonestyBonus() {
