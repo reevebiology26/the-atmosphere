@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AQA GCSE Chemistry: The Atmosphere (Unit 4.9)</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    /* Splash Screen Styles */
+    #splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); /* Deep space blue */
+        color: white;
+    }
+    #splash-screen.hidden-splash {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .ambient-glow {
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(0,0,0,0) 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+        pointer-events: none;
+        animation: pulse-glow 5s infinite alternate ease-in-out;
+    }
+    @keyframes pulse-glow {
+        0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
+        100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    }
+    .fade-in-up {
+        animation: fadeInUp 1s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    .delay-1 { animation-delay: 0.3s; }
+    .delay-2 { animation-delay: 0.6s; }
+    .delay-3 { animation-delay: 0.9s; }
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .neon-text {
+        text-shadow: 0 0 10px rgba(14, 165, 233, 0.7), 
+                     0 0 20px rgba(14, 165, 233, 0.5),
+                     0 0 30px rgba(16, 185, 129, 0.5);
+    }
+
+    /* SVG Chemistry Animations */
+    .smoke-puff {
+        animation: floatUp 3s infinite ease-in-out alternate;
+    }
+    .smoke-puff-1 { animation-delay: 0s; }
+    .smoke-puff-2 { animation-delay: 0.5s; }
+    .smoke-puff-3 { animation-delay: 1s; }
+    @keyframes floatUp {
+        0% { transform: translateY(0) scale(1); opacity: 0.8; }
+        100% { transform: translateY(-15px) scale(1.1); opacity: 0.3; }
+    }
+    
+    .car-bounce {
+        animation: carBounce 0.3s infinite alternate ease-in-out;
+    }
+    @keyframes carBounce {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-2px); }
+    }
+    
+    .exhaust-fume {
+        animation: puffExhaust 1.5s infinite linear;
+    }
+    @keyframes puffExhaust {
+        0% { transform: translate(0, 0) scale(0.5); opacity: 0.8; }
+        100% { transform: translate(-30px, -15px) scale(2.5); opacity: 0; }
+    }
+    
+    .radiation-wave {
+        stroke-dasharray: 8, 4;
+        animation: flowRadiation 1.5s linear infinite;
+    }
+    @keyframes flowRadiation {
+        to { stroke-dashoffset: -24; }
+    }
+
+    /* Main App Styles */
+    .touch-draggable {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+    }
+    .touch-draggable:active {
+      cursor: grabbing;
+    }
+    .dragging-card {
+      opacity: 0.6;
+      transform: scale(0.98);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-color: #0ea5e9 !important;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #score-modal-content, #score-modal-content * { visibility: visible; }
+      #score-modal-content { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen lg:h-screen lg:overflow-hidden flex flex-col selection:bg-sky-500 selection:text-white relative">
+
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+      <div class="ambient-glow"></div>
+
+      <div class="z-10 relative flex flex-col items-center w-full max-w-5xl px-6 cursor-pointer">
+          
+          <!-- Headers -->
+          <div class="text-center mb-6 fade-in-up">
+              <h1 class="text-5xl md:text-7xl font-black tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
+                  THE ATMOSPHERE
+              </h1>
+              <h2 class="text-xl md:text-2xl font-medium tracking-widest text-slate-300 uppercase">
+                  GCSE AQA Chemistry <span class="font-bold text-white">(8462) Unit 4.9</span>
+              </h2>
+          </div>
+
+          <!-- SVG Animation Container -->
+          <div class="w-full max-w-2xl h-64 md:h-80 relative my-4 fade-in-up delay-1">
+              <svg viewBox="0 0 500 250" class="w-full h-full drop-shadow-2xl">
+                  <!-- Ground Line -->
+                  <line x1="20" y1="220" x2="480" y2="220" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+
+                  <!-- Sun -->
+                  <g transform="translate(250, 40)">
+                      <circle cx="0" cy="0" r="22" fill="#fde047" filter="drop-shadow(0 0 10px rgba(253, 224, 71, 0.8))"/>
+                      <path d="M 0 -30 L 0 -40 M 0 30 L 0 40 M -30 0 L -40 0 M 30 0 L 40 0 M -21 -21 L -28 -28 M 21 21 L 28 28 M -21 21 L -28 28 M 21 -21 L 28 -28" stroke="#fef08a" stroke-width="3" stroke-linecap="round"/>
+                  </g>
+
+                  <!-- Radiation lines (Greenhouse Effect) -->
+                  <path class="radiation-wave" d="M 250 70 L 330 180" stroke="#fde047" stroke-width="3" fill="none"/>
+                  <path class="radiation-wave" d="M 340 170 C 370 130 400 130 430 170" stroke="#f87171" stroke-width="3" fill="none"/>
+
+                  <!-- Volcano (Early Atmosphere) -->
+                  <g transform="translate(50, 80)">
+                      <!-- Smoke/Gases -->
+                      <circle cx="75" cy="0" r="18" fill="#64748b" class="smoke-puff smoke-puff-1"/>
+                      <circle cx="55" cy="-20" r="22" fill="#475569" class="smoke-puff smoke-puff-2"/>
+                      <circle cx="95" cy="-15" r="28" fill="#334155" class="smoke-puff smoke-puff-3"/>
+                      <text x="75" y="-40" fill="#cbd5e1" font-size="12" font-weight="bold" text-anchor="middle" class="smoke-puff smoke-puff-1">CO₂, H₂O</text>
+                      
+                      <!-- Mountain -->
+                      <path d="M 0 140 L 60 30 L 90 30 L 150 140 Z" fill="#4b5563" stroke="#334155" stroke-width="2"/>
+                      <path d="M 60 30 L 70 55 L 80 40 L 90 30 Z" fill="#ea580c"/> <!-- Lava -->
+                  </g>
+
+                  <!-- Car (Modern Pollutants) -->
+                  <g transform="translate(300, 155)">
+                      <!-- Exhaust Fumes -->
+                      <g class="exhaust-fume">
+                         <circle cx="-10" cy="45" r="10" fill="#94a3b8"/>
+                         <text x="-15" y="30" fill="#cbd5e1" font-size="10" font-weight="bold">NOx, CO</text>
+                      </g>
+                      
+                      <g class="car-bounce">
+                          <!-- Car Body -->
+                          <path d="M 10 25 L 25 5 L 65 5 L 80 25 L 95 25 Q 100 25 100 30 L 100 45 Q 100 50 95 50 L 5 50 Q 0 50 0 45 L 0 30 Q 0 25 5 25 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                          
+                          <!-- Windows -->
+                          <path d="M 15 25 L 28 8 L 45 8 L 45 25 Z" fill="#bae6fd" opacity="0.9" stroke="#38bdf8" stroke-width="1"/>
+                          <path d="M 48 25 L 48 8 L 62 8 L 75 25 Z" fill="#bae6fd" opacity="0.9" stroke="#38bdf8" stroke-width="1"/>
+                          
+                          <!-- Wheels -->
+                          <circle cx="20" cy="50" r="12" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                          <circle cx="20" cy="50" r="5" fill="#cbd5e1"/>
+                          <circle cx="80" cy="50" r="12" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                          <circle cx="80" cy="50" r="5" fill="#cbd5e1"/>
+                          
+                          <!-- Headlight -->
+                          <path d="M 95 30 L 100 30 L 100 35 L 95 35 Z" fill="#fde047"/>
+                      </g>
+                  </g>
+              </svg>
+          </div>
+
+          <!-- Prominent Banner Text -->
+          <div class="mt-4 fade-in-up delay-2 text-center w-full">
+              <div class="inline-block relative">
+                  <div class="absolute -inset-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-emerald-400 rounded-lg blur opacity-30"></div>
+                  <div class="relative px-8 py-4 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl">
+                      <h3 class="text-2xl md:text-4xl font-black uppercase tracking-wide neon-text text-white">
+                          <span class="text-sky-400">Lock in</span> with Mr Reeve's <br class="md:hidden"> Interactive Resources
+                      </h3>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Subtext/Hint to continue -->
+          <div class="mt-10 fade-in-up delay-3">
+              <p class="text-slate-400 text-sm tracking-widest uppercase animate-pulse">
+                  Press any key or tap to begin
+              </p>
+          </div>
+
+      </div>
+  </div>
+
+  <!-- Top Header Navigation -->
+  <header class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white border-b border-sky-800/60 sticky top-0 z-40 shadow-sm shrink-0">
+    <div class="max-w-[1550px] mx-auto px-2 sm:px-4 py-1">
+      <div class="flex items-center justify-between gap-2">
+        
+        <!-- Left: Logo, Spec & Author Credit -->
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/50 flex items-center justify-center text-sky-300 font-bold shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <!-- Simple flask icon -->
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-xs sm:text-sm font-bold text-white tracking-tight leading-none">AQA GCSE Chem: The Atmosphere</h1>
+              <span class="text-[9px] px-1 py-0.2 rounded bg-sky-500/20 text-sky-300 font-semibold border border-sky-400/30">Unit 4.9</span>
+            </div>
+            <p class="text-[10px] text-emerald-300 font-semibold tracking-wide">Created by Mr Reeve</p>
+          </div>
+        </div>
+
+        <!-- Right: Streak Display & Screen Shot Score Button -->
+        <div class="flex items-center gap-3">
+          <div id="top-streak-display" class="hidden items-center gap-1.5 px-3 py-0.5 bg-gradient-to-r from-orange-500 to-red-600 text-white font-black text-xs sm:text-sm rounded-lg shadow-[0_0_10px_rgba(249,115,22,0.8)] border border-orange-300 transition-all duration-300 transform scale-95 opacity-0">
+            <span>🔥 Streak:</span>
+            <span id="streak-counter-val" class="text-base sm:text-lg drop-shadow-md">0</span>
+          </div>
+          <button onclick="promptAndOpenScorecard()" class="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-[11px] sm:text-xs rounded-lg shadow border border-amber-300 flex items-center gap-1.5 transition active:scale-95 cursor-pointer">
+            <span>📸</span>
+            <span class="whitespace-nowrap">Screenshot Score</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Tabs -->
+      <nav class="flex items-center justify-between gap-1 mt-1 pt-0.5 border-t border-slate-800 text-[10px] sm:text-[11px] font-semibold text-slate-300 overflow-x-auto no-scrollbar">
+        <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-sky-400 text-sky-300 bg-slate-800/80 font-bold">
+          1. Composition
+        </button>
+        <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-transparent hover:text-white">
+          2. Pollutants
+        </button>
+        <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-transparent hover:text-white">
+          3. Definitions
+        </button>
+        <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-transparent hover:text-white">
+          4. 20 MCQ Quiz
+        </button>
+        <button onclick="switchTab('tab5')" id="btn-tab5" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-transparent hover:text-white">
+          5. Evolution
+        </button>
+        <button onclick="switchTab('tab6')" id="btn-tab6" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-transparent hover:text-white">
+          6. Greenhouse
+        </button>
+        <button onclick="switchTab('tab7')" id="btn-tab7" class="tab-btn flex-1 min-w-[85px] py-1 px-1 text-center rounded-t-lg transition border-b-2 border-transparent hover:text-white">
+          7. 6-Markers
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-[1550px] w-full mx-auto px-2 sm:px-3 py-1 flex flex-col justify-start lg:overflow-hidden lg:h-[calc(100vh-70px)]">
+
+    <!-- ======================================================== -->
+    <!-- TAB 1: COMPOSITION PIE CHART DRAG & DROP                 -->
+    <!-- ======================================================== -->
+    <section id="tab1" class="tab-pane block h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-2 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">Activity 1</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">Atmosphere Composition: Tap Label then Tap Pin (A–D)</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded text-xs font-bold text-indigo-900">
+              Score: <span id="tab1-score" class="font-mono text-indigo-700">0</span> / 4
+            </div>
+            <button onclick="resetTab1()" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 mt-1 flex-grow items-stretch overflow-hidden">
+          
+          <div class="lg:col-span-7 bg-slate-950 rounded-xl p-2 border border-slate-800 flex flex-col justify-between items-center text-white relative">
+            <div class="w-full flex items-center justify-between text-[10px] text-slate-400 font-mono px-1">
+              <span class="text-sky-400 font-semibold" id="tab1-selection-status">● Tap a label on right, then tap letter circle A–D</span>
+              <span class="text-slate-400">Modern Atmosphere</span>
+            </div>
+
+            <div class="w-full flex items-center justify-center flex-grow py-0.5">
+              <svg viewBox="0 0 400 400" class="w-full max-h-[350px] select-none" id="tab1-svg">
+                <!-- Abstract Pie Chart -->
+                <!-- 78% Nitrogen Slice (Large Blue) -->
+                <path d="M 200 200 L 200 40 A 160 160 0 1 1 42 225 Z" fill="#0ea5e9" stroke="#0f172a" stroke-width="3"/>
+                <!-- 21% Oxygen Slice (Red) -->
+                <path d="M 200 200 L 42 225 A 160 160 0 0 1 180 41 Z" fill="#ef4444" stroke="#0f172a" stroke-width="3"/>
+                <!-- Trace gases (Argon + CO2) tiny slivers -->
+                <path d="M 200 200 L 180 41 A 160 160 0 0 1 200 40 Z" fill="#f59e0b" stroke="#0f172a" stroke-width="1"/>
+
+                <!-- Target Pins -->
+                <!-- Pin A (Nitrogen) -->
+                <g class="cursor-pointer" onclick="handleTargetPinClick('A')">
+                  <circle cx="260" cy="240" r="20" fill="#1e293b" stroke="#f8fafc" stroke-width="2" stroke-dasharray="3,3" id="tcirc-A"/>
+                  <text x="260" y="245" fill="#f8fafc" font-size="14" font-weight="bold" text-anchor="middle" id="ttxt-A">A</text>
+                  <line x1="260" y1="260" x2="260" y2="300" stroke="#f8fafc" stroke-width="2"/>
+                  <text x="260" y="320" fill="#f8fafc" font-size="16" font-weight="bold" text-anchor="middle">78%</text>
+                </g>
+                <!-- Pin B (Oxygen) -->
+                <g class="cursor-pointer" onclick="handleTargetPinClick('B')">
+                  <circle cx="100" cy="140" r="20" fill="#1e293b" stroke="#f8fafc" stroke-width="2" stroke-dasharray="3,3" id="tcirc-B"/>
+                  <text x="100" y="145" fill="#f8fafc" font-size="14" font-weight="bold" text-anchor="middle" id="ttxt-B">B</text>
+                  <line x1="100" y1="120" x2="100" y2="80" stroke="#f8fafc" stroke-width="2"/>
+                  <text x="100" y="70" fill="#f8fafc" font-size="16" font-weight="bold" text-anchor="middle">21%</text>
+                </g>
+                <!-- Pin C (Argon) -->
+                <g class="cursor-pointer" onclick="handleTargetPinClick('C')">
+                  <circle cx="150" cy="30" r="16" fill="#1e293b" stroke="#f8fafc" stroke-width="2" stroke-dasharray="3,3" id="tcirc-C"/>
+                  <text x="150" y="35" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle" id="ttxt-C">C</text>
+                  <line x1="160" y1="40" x2="185" y2="60" stroke="#f8fafc" stroke-width="1"/>
+                  <text x="120" y="35" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="end">~0.9%</text>
+                </g>
+                <!-- Pin D (CO2) -->
+                <g class="cursor-pointer" onclick="handleTargetPinClick('D')">
+                  <circle cx="230" cy="20" r="16" fill="#1e293b" stroke="#f8fafc" stroke-width="2" stroke-dasharray="3,3" id="tcirc-D"/>
+                  <text x="230" y="25" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="middle" id="ttxt-D">D</text>
+                  <line x1="220" y1="30" x2="195" y2="42" stroke="#f8fafc" stroke-width="1"/>
+                  <text x="250" y="25" fill="#f8fafc" font-size="12" font-weight="bold" text-anchor="start">~0.04%</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 flex flex-col justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <div>
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-200 mb-1">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Gas Labels:</span>
+                <span class="text-[9px] text-sky-800 font-bold bg-sky-100 px-1.5 py-0.5 rounded">Tap to Match</span>
+              </div>
+              <div id="tab1-labels-bank" class="flex flex-col gap-2 mt-2"></div>
+            </div>
+            <div class="p-2 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 text-[11px] leading-tight mt-1">
+              <strong>Instructions:</strong> Tap a gas name above, then tap its matching percentage pin <strong>A–D</strong> on the chart.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: POLLUTANTS MATCHER                                -->
+    <!-- ======================================================== -->
+    <section id="tab2" class="tab-pane hidden h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-2 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold text-rose-800 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Activity 2</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">Pollutants Matcher: Pair Pins (1–5) with Pollutant Effects</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="bg-rose-50 border border-rose-200 px-2 py-0.5 rounded text-xs font-bold text-rose-900">
+              Score: <span id="tab2-score" class="font-mono text-rose-700">0</span> / 5
+            </div>
+            <button onclick="resetTab2()" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 mt-1 flex-grow items-stretch overflow-hidden">
+          
+          <div class="lg:col-span-5 bg-slate-900 rounded-xl p-3 border border-slate-800 flex flex-col justify-between items-center text-white">
+            <div class="w-full flex justify-between items-center text-[10px] font-mono text-slate-300 pb-1 border-b border-slate-700">
+              <span class="text-rose-400 font-bold">Select a Gas (1-5)</span>
+              <span id="tab2-selected-pin-msg" class="text-amber-300 text-[10px]">Tap a number</span>
+            </div>
+
+            <!-- Pollutants visual list -->
+            <div class="flex flex-col gap-3 w-full max-w-sm mt-4 flex-grow">
+               <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700" onclick="selectTab2Pin(1)">
+                  <div class="w-10 h-10 rounded-full bg-rose-600 font-bold flex items-center justify-center text-lg border-2 border-white" id="pin-circ-1">1</div>
+                  <div class="flex flex-col"><span class="font-bold text-sm">Carbon Monoxide (CO)</span><span class="text-[10px] text-slate-400">Incomplete combustion</span></div>
+               </div>
+               <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700" onclick="selectTab2Pin(2)">
+                  <div class="w-10 h-10 rounded-full bg-rose-600 font-bold flex items-center justify-center text-lg border-2 border-white" id="pin-circ-2">2</div>
+                  <div class="flex flex-col"><span class="font-bold text-sm">Sulfur Dioxide (SO₂)</span><span class="text-[10px] text-slate-400">Oxidation of sulfur impurities</span></div>
+               </div>
+               <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700" onclick="selectTab2Pin(3)">
+                  <div class="w-10 h-10 rounded-full bg-rose-600 font-bold flex items-center justify-center text-lg border-2 border-white" id="pin-circ-3">3</div>
+                  <div class="flex flex-col"><span class="font-bold text-sm">Oxides of Nitrogen (NOx)</span><span class="text-[10px] text-slate-400">N₂ + O₂ reacting at high engine temps</span></div>
+               </div>
+               <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700" onclick="selectTab2Pin(4)">
+                  <div class="w-10 h-10 rounded-full bg-rose-600 font-bold flex items-center justify-center text-lg border-2 border-white" id="pin-circ-4">4</div>
+                  <div class="flex flex-col"><span class="font-bold text-sm">Particulates (Soot/C)</span><span class="text-[10px] text-slate-400">Solid particles from unburned fuel</span></div>
+               </div>
+               <div class="flex items-center gap-4 bg-slate-800 p-2 rounded-lg border border-slate-700 cursor-pointer hover:bg-slate-700" onclick="selectTab2Pin(5)">
+                  <div class="w-10 h-10 rounded-full bg-rose-600 font-bold flex items-center justify-center text-lg border-2 border-white" id="pin-circ-5">5</div>
+                  <div class="flex flex-col"><span class="font-bold text-sm">Carbon Dioxide (CO₂)</span><span class="text-[10px] text-slate-400">Complete combustion</span></div>
+               </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 flex flex-col justify-between gap-1.5 overflow-hidden" id="tab2-function-slots"></div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: DEFINITIONS MATCH                                 -->
+    <!-- ======================================================== -->
+    <section id="tab3" class="tab-pane hidden h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-2 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 shrink-0">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Activity 3</span>
+              <h2 class="text-xs sm:text-sm font-bold text-slate-900">Key Terminology: Match Term to Definition</h2>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-xs font-bold text-amber-900">
+              Score: <span id="tab3-score" class="font-mono text-amber-700">0</span> / 4
+            </div>
+            <button onclick="resetTab3()" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition cursor-pointer">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 mt-1 flex-grow items-stretch overflow-hidden">
+          
+          <!-- Left: Terms Bank -->
+          <div class="lg:col-span-4 bg-slate-50 p-2 rounded-xl border border-slate-200 flex flex-col justify-between overflow-hidden">
+            <div>
+              <div class="flex items-center justify-between pb-1 border-b border-slate-200 mb-1">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Terms:</span>
+              </div>
+              <div id="tab3-molecules-bank" class="space-y-1 mt-2"></div>
+            </div>
+            <div id="tab3-selection-status" class="text-[10px] text-slate-500 font-medium bg-white p-1.5 rounded border border-slate-200 text-center leading-tight">
+              Tap a term on the left, then tap its definition on the right.
+            </div>
+          </div>
+
+          <!-- Right: Definitions -->
+          <div class="lg:col-span-8 flex flex-col justify-between gap-2 overflow-hidden py-2" id="tab3-targets-container"></div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 4: 20 MCQ QUIZ (ONE QUESTION AT A TIME)              -->
+    <!-- ======================================================== -->
+    <section id="tab4" class="tab-pane hidden h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-3 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100 shrink-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">Exam Test</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">20 MCQ Quiz: Atmosphere Evolution & Climate</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-600 font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              Question <span id="tab4-current-q-num" class="text-sky-700">1</span> / <span id="tab4-total-q-num">20</span>
+            </span>
+            <div class="bg-purple-50 border border-purple-200 px-2 py-0.5 rounded text-xs font-bold text-purple-900">
+              Score: <span id="tab4-score" class="font-mono text-purple-700">0</span>
+            </div>
+            <button onclick="resetMCQ20()" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition cursor-pointer">
+              Restart
+            </button>
+          </div>
+        </div>
+
+        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden shrink-0 mt-1">
+          <div id="tab4-progress-bar" class="bg-purple-500 h-full w-[5%] transition-all duration-300"></div>
+        </div>
+
+        <div id="tab4-single-card" class="flex-grow flex flex-col justify-center max-w-3xl w-full mx-auto py-2"></div>
+
+        <div id="tab4-summary" class="hidden flex-grow flex flex-col items-center justify-center max-w-lg w-full mx-auto text-center p-4">
+          <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-2xl font-bold mb-2">🏆</div>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900">Quiz Completed!</h3>
+          <p class="text-xs text-slate-600 mt-1">Your Final Score: <span id="tab4-final-score" class="font-bold text-purple-700 text-sm">0</span> / 20</p>
+          <p id="tab4-summary-feedback" class="text-xs text-slate-500 mt-1"></p>
+
+          <div class="flex items-center gap-2 mt-4">
+            <button id="btn-retest-missed" onclick="retestMissedQuestions()" class="hidden px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold transition shadow-xs cursor-pointer">
+              🔄 Retest Missed (<span id="retest-count">0</span>)
+            </button>
+            <button onclick="resetMCQ20()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-xs cursor-pointer">
+              Retake All 20 Questions
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 5: EVOLUTION TIMELINE ORDER                          -->
+    <!-- ======================================================== -->
+    <section id="tab5" class="tab-pane hidden h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-2.5 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 shrink-0">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Reorder Task</span>
+              <h2 class="text-xs sm:text-sm font-bold text-slate-900">Evolution of the Atmosphere: Chronological Order (4.6 Billion Years)</h2>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-xs font-bold text-emerald-900">
+              Score: <span id="tab5-score" class="font-mono text-emerald-700">0</span> / 6
+            </div>
+            <button onclick="checkEvolutionSequence()" class="px-2.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition cursor-pointer">
+              ✓ Check Order
+            </button>
+            <button onclick="resetEvolutionSequence()" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition cursor-pointer">
+              Shuffle
+            </button>
+          </div>
+        </div>
+        <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 shrink-0">Use the <strong>▲ Up</strong> and <strong>▼ Down</strong> buttons to sequence the steps from Earth's formation to today:</p>
+        <div id="evolution-sentences-list" class="flex flex-col justify-between gap-1.5 flex-grow overflow-hidden my-1 select-none"></div>
+        <div id="evolution-feedback-banner" class="hidden p-1.5 rounded-lg text-xs font-bold border shrink-0"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 6: GREENHOUSE EFFECT ORDER                           -->
+    <!-- ======================================================== -->
+    <section id="tab6" class="tab-pane hidden h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-2 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 shrink-0">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold text-orange-800 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200">Mechanism Task</span>
+              <h2 class="text-xs sm:text-sm font-bold text-slate-900">The Greenhouse Effect: Sentence Order</h2>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="bg-orange-50 border border-orange-200 px-2 py-0.5 rounded text-xs font-bold text-orange-900">
+              Score: <span id="tab6-score" class="font-mono text-orange-700">0</span> / 6
+            </div>
+            <button onclick="checkGreenhouseOrder()" class="px-2.5 py-0.5 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs font-bold transition cursor-pointer">
+              ✓ Check Order
+            </button>
+            <button onclick="resetGreenhouseOrder()" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition cursor-pointer">
+              Shuffle
+            </button>
+          </div>
+        </div>
+        <div id="greenhouse-sentences-container" class="flex flex-col justify-between gap-2 flex-grow overflow-hidden my-2 select-none"></div>
+        <div id="greenhouse-feedback" class="hidden p-2 rounded-lg text-sm font-bold border shrink-0"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 7: 3 OCR/AQA 6-MARK LONG ANSWER QUESTIONS            -->
+    <!-- ======================================================== -->
+    <section id="tab7" class="tab-pane hidden h-full flex flex-col">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-2.5 flex flex-col h-full justify-between overflow-hidden">
+        
+        <div class="flex items-center justify-between pb-1 border-b border-slate-100 shrink-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">Extended Writing</span>
+            <h2 class="text-xs sm:text-sm font-bold text-slate-900">3 AQA 6-Mark Questions (Complete All 3 for 18 Marks)</h2>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <button onclick="loadTab7Question(1)" id="tab7-qbtn-1" class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-600 text-white shadow-xs cursor-pointer flex items-center gap-1">
+              <span>Q1</span><span id="tab7-badge-1" class="text-[10px] opacity-80">(0/6)</span>
+            </button>
+            <button onclick="loadTab7Question(2)" id="tab7-qbtn-2" class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1">
+              <span>Q2</span><span id="tab7-badge-2" class="text-[10px] opacity-80">(0/6)</span>
+            </button>
+            <button onclick="loadTab7Question(3)" id="tab7-qbtn-3" class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1">
+              <span>Q3</span><span id="tab7-badge-3" class="text-[10px] opacity-80">(0/6)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-amber-50/80 border border-amber-200 rounded-lg p-2 shrink-0 mt-1">
+          <p class="text-[10px] sm:text-[11px] text-amber-900 leading-tight">
+            <strong>Honesty Bonus:</strong> If you think the app marked you too harshly on keywords but your chemistry knowledge was correct, use the '+1 Honesty Bonus' button to manually adjust.
+          </p>
+        </div>
+
+        <div class="mt-1 bg-indigo-50/70 border border-indigo-200 rounded-lg p-1.5 shrink-0">
+          <div class="flex items-center justify-between text-[10px] text-indigo-900 font-bold uppercase">
+            <span id="tab7-q-category">AQA 4.9.1</span>
+            <span class="bg-indigo-200 text-indigo-900 px-1.5 py-0.2 rounded font-mono">[MAX 6 MARKS EACH]</span>
+          </div>
+          <p id="tab7-prompt-text" class="text-xs font-bold text-slate-900 mt-0.5 leading-snug"></p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 mt-1 flex-grow overflow-hidden items-stretch">
+          <div class="lg:col-span-6 flex flex-col justify-between overflow-hidden">
+            <div class="flex items-center justify-between text-[10px] text-slate-500 font-medium mb-0.5">
+              <span>Your Written Answer:</span>
+              <div class="flex items-center gap-1.5">
+                <span id="tab7-current-mark-display" class="font-mono bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.2 rounded font-bold">Mark: 0 / 6</span>
+                <span id="tab7-word-count" class="font-mono bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200">0 words</span>
+              </div>
+            </div>
+            <textarea id="tab7-student-answer" oninput="analyzeTab7Text()" placeholder="Type your extended chemistry response here using precise AQA terminology..." class="w-full flex-grow p-2 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-100 text-xs font-sans leading-relaxed outline-none transition bg-white resize-none"></textarea>
+            
+            <div class="flex items-center justify-between gap-1 mt-1 pt-1 border-t border-slate-100 shrink-0">
+              <div class="flex items-center space-x-1.5">
+                <button onclick="evaluateAndShowModels()" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition shadow-xs cursor-pointer">⚡ Grade Question</button>
+                <button id="tab7-honesty-btn" onclick="applyHonestyBonus()" class="hidden px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded text-xs font-bold transition shadow-xs cursor-pointer">🎁 +1</button>
+                <button onclick="clearTab7Answer()" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-xs font-medium transition cursor-pointer">Clear</button>
+              </div>
+              <span class="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                Terms matched: <span id="tab7-matched-terms-count" class="font-bold text-indigo-600">0</span> / <span id="tab7-total-terms-count">8</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 flex flex-col justify-between bg-slate-50 rounded-xl p-2 border border-slate-200 overflow-hidden">
+            <div class="shrink-0">
+              <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+                <span class="text-[10px] font-bold text-slate-800 uppercase tracking-wide">Key AQA Terminology Tracker</span>
+                <span id="tab7-predicted-level" class="text-[10px] font-bold text-slate-500">Predicted: Start typing</span>
+              </div>
+              <div id="tab7-keywords-chips" class="flex flex-wrap gap-1 mt-1"></div>
+            </div>
+
+            <div id="tab7-models-section" class="flex-grow mt-1.5 pt-1 border-t border-slate-200 hidden flex flex-col justify-between overflow-y-auto pr-1 space-y-1">
+              <div class="rounded-lg border border-emerald-300 bg-emerald-50/70 p-1.5 text-[11px]">
+                <div class="flex items-center justify-between font-bold text-emerald-900">
+                  <span>High-Level Model Answer (5–6 Marks)</span>
+                  <span class="bg-emerald-600 text-white px-1 py-0.2 rounded text-[9px]">6/6</span>
+                </div>
+                <p id="model-high-text" class="text-slate-800 mt-0.5 leading-snug text-[10px]"></p>
+                <p class="text-[9px] text-emerald-950 font-semibold mt-0.5"><strong>Commentary:</strong> <span id="model-high-commentary"></span></p>
+              </div>
+              <div class="rounded-lg border border-sky-300 bg-sky-50/70 p-1.5 text-[11px]">
+                <div class="flex items-center justify-between font-bold text-sky-900">
+                  <span>Medium-Level Model Answer (3–4 Marks)</span>
+                  <span class="bg-sky-600 text-white px-1 py-0.2 rounded text-[9px]">4/6</span>
+                </div>
+                <p id="model-med-text" class="text-slate-800 mt-0.5 leading-snug text-[10px]"></p>
+              </div>
+            </div>
+            
+            <div id="tab7-models-placeholder" class="flex-grow flex items-center justify-center text-center p-3 text-slate-400 text-xs">
+              Type your response and click "Grade" to see authentic AQA examiner model answers.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- SCREENSHOT SCORECARD POPUP MODAL                         -->
+  <!-- ======================================================== -->
+  <div id="scorecard-modal" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-3 hidden">
+    <div id="score-modal-content" class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-5 shadow-2xl border border-slate-200 text-slate-800 space-y-3">
+      <div class="flex items-center justify-between border-b pb-2 border-slate-200">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-600 font-bold flex items-center justify-center text-sm border border-sky-500/30">📊</div>
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900">Official Chemistry Scorecard</h3>
+            <p class="text-[11px] text-emerald-700 font-semibold">AQA GCSE Chemistry (4.9) • Created by Mr Reeve</p>
+          </div>
+        </div>
+        <button onclick="closeScorecardModal()" class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2 py-0.5 rounded cursor-pointer">✕</button>
+      </div>
+
+      <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-medium">Candidate Name:</span>
+          <span id="scorecard-display-name" class="font-bold text-slate-900 text-sm bg-white px-2 py-0.5 rounded border border-slate-300">Candidate</span>
+        </div>
+        <div class="flex items-center justify-between text-[11px]">
+          <span class="text-slate-500 font-medium">Date & Timestamp:</span>
+          <span id="scorecard-timestamp" class="font-mono font-semibold text-slate-800"></span>
+        </div>
+      </div>
+
+      <div class="border rounded-xl overflow-hidden text-xs">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 font-bold border-b text-[11px]">
+              <th class="p-2">Revision Activity</th>
+              <th class="p-2 text-center">Marks Earned</th>
+              <th class="p-2 text-right">Max Marks</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium text-[11px]" id="scorecard-table-body"></tbody>
+          <tfoot>
+            <tr class="bg-sky-50 text-sky-950 font-bold border-t border-sky-200 text-xs">
+              <td class="p-2">Cumulative Total</td>
+              <td class="p-2 text-center font-mono font-bold text-sky-800" id="scorecard-total-marks">0</td>
+              <td class="p-2 text-right font-mono" id="scorecard-max-marks">59</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="p-2 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-between text-xs">
+        <div>
+          <span class="text-indigo-900 font-bold block text-[11px]">Overall Mastery Score:</span>
+          <span id="scorecard-grade-descriptor" class="text-indigo-700 text-[10px]">Great effort</span>
+        </div>
+        <span id="scorecard-percentage" class="text-base font-black text-indigo-700 font-mono">0%</span>
+      </div>
+
+      <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+        <button onclick="promptEditName()" class="text-sky-600 hover:text-sky-800 font-semibold text-[11px] cursor-pointer">✏️ Change Name</button>
+        <div class="flex items-center gap-1.5">
+          <button onclick="window.print()" class="px-3 py-1 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg transition flex items-center gap-1 text-xs cursor-pointer">🖨 Print / PDF</button>
+          <button onclick="closeScorecardModal()" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition text-xs cursor-pointer">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==================================================== */
+    /* SPLASH SCREEN LOGIC                                  */
+    /* ==================================================== */
+    const splash = document.getElementById('splash-screen');
+    let hasStarted = false;
+    
+    function handleStartApp() {
+        if (hasStarted) return;
+        hasStarted = true;
+        splash.classList.add('hidden-splash');
+        setTimeout(() => {
+            splash.style.display = 'none';
+        }, 800);
+    }
+    splash.addEventListener('click', handleStartApp);
+    window.addEventListener('keydown', (e) => {
+        if (!splash.classList.contains('hidden-splash')) handleStartApp();
+    });
+
+    /* ==================================================== */
+    /* GLOBAL TAB SWITCHING & TOAST UTILITY                 */
+    /* ==================================================== */
+    let currentTabId = 'tab1';
+    let studentCandidateName = "";
+    let currentStreak = 0;
+
+    function updateStreakDisplay() {
+      const streakEl = document.getElementById('top-streak-display');
+      const valEl = document.getElementById('streak-counter-val');
+      if (!streakEl || !valEl) return;
+      if (currentStreak >= 2) {
+        streakEl.classList.remove('hidden');
+        setTimeout(() => {
+          streakEl.classList.remove('scale-95', 'opacity-0');
+          streakEl.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        valEl.textContent = currentStreak;
+        streakEl.classList.remove('animate-pulse');
+        void streakEl.offsetWidth; 
+        streakEl.classList.add('animate-pulse');
+      } else {
+        streakEl.classList.remove('scale-100', 'opacity-100', 'animate-pulse');
+        streakEl.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => { if (currentStreak < 2) streakEl.classList.add('hidden'); }, 300);
+      }
+    }
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+      } else if (type === 'complete') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+        if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      }
+    }
+
+    function switchTab(tabId) {
+      currentTabId = tabId;
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-sky-400', 'text-sky-300', 'bg-slate-800/80', 'font-bold');
+        btn.classList.add('border-transparent');
+      });
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.remove('hidden');
+      const btn = document.getElementById('btn-' + tabId);
+      if (btn) {
+        btn.classList.add('border-sky-400', 'text-sky-300', 'bg-slate-800/80', 'font-bold');
+        btn.classList.remove('border-transparent');
+      }
+    }
+
+    function showToast(msg, bg = 'bg-sky-600') {
+      const prev = document.getElementById('app-floating-toast');
+      if (prev) prev.remove();
+      const toast = document.createElement('div');
+      toast.id = 'app-floating-toast';
+      toast.className = `fixed bottom-3 right-3 z-50 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg transition-all duration-300 ${bg}`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 250);
+      }, 2000);
+    }
+
+    /* ==================================================== */
+    /* SCORECARD MODAL LOGIC                                */
+    /* ==================================================== */
+    function promptAndOpenScorecard() {
+      const entered = window.prompt("Enter candidate name for scorecard:", studentCandidateName || "");
+      if (entered !== null) {
+        studentCandidateName = entered.trim().length > 0 ? entered.trim() : "Chemistry Student";
+        openScorecardModal();
+      }
+    }
+    function promptEditName() {
+      const entered = window.prompt("Update candidate name:", studentCandidateName);
+      if (entered && entered.trim().length > 0) {
+        studentCandidateName = entered.trim();
+        document.getElementById('scorecard-display-name').textContent = studentCandidateName;
+      }
+    }
+    function openScorecardModal() {
+      document.getElementById('scorecard-display-name').textContent = studentCandidateName || "Chemistry Student";
+      const now = new Date();
+      document.getElementById('scorecard-timestamp').textContent = now.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) + ', ' + now.toLocaleTimeString('en-GB');
+
+      const s1 = tab1Labels.filter(l => l.placed).length;
+      const s2 = tab2Events.filter(e => e.pairedPin === e.pin).length;
+      const s3 = tab3Matches.filter(m => m.matchedMolId === m.targetId).length;
+      let s4 = 0;
+      Object.keys(userMCQAnswers).forEach(idx => { if (userMCQAnswers[idx] === mcq20Data[idx].ans) s4++; });
+      const s5 = tab5Score;
+      const s6 = tab6Score;
+      const s7 = (tab7Scores[1] || 0) + (tab7Scores[2] || 0) + (tab7Scores[3] || 0);
+
+      const total = s1 + s2 + s3 + s4 + s5 + s6 + s7;
+      const maxTotal = 4 + 5 + 4 + 20 + 6 + 6 + 18; // 63 marks
+
+      const rows = [
+        { name: "Tab 1: Atmosphere Composition", score: s1, max: 4 },
+        { name: "Tab 2: Pollutants Matcher", score: s2, max: 5 },
+        { name: "Tab 3: Key Terminology", score: s3, max: 4 },
+        { name: "Tab 4: 20 MCQ Quiz", score: s4, max: 20 },
+        { name: "Tab 5: Atmosphere Evolution Order", score: s5, max: 6 },
+        { name: "Tab 6: Greenhouse Effect Order", score: s6, max: 6 },
+        { name: "Tab 7: 3x AQA 6-Markers", score: s7, max: 18 }
+      ];
+
+      const tbody = document.getElementById('scorecard-table-body');
+      tbody.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="p-1.5 text-slate-800">${r.name}</td><td class="p-1.5 text-center font-mono font-bold text-sky-700">${r.score}</td><td class="p-1.5 text-right font-mono text-slate-500">${r.max}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('scorecard-total-marks').textContent = total;
+      document.getElementById('scorecard-max-marks').textContent = maxTotal;
+      const pct = Math.round((total / maxTotal) * 100);
+      document.getElementById('scorecard-percentage').textContent = `${pct}%`;
+
+      const desc = document.getElementById('scorecard-grade-descriptor');
+      if (pct >= 80) desc.textContent = "🌟 Grade 8/9 Standard - Outstanding chemistry knowledge!";
+      else if (pct >= 60) desc.textContent = "👍 Grade 6/7 Standard - Strong conceptual recall.";
+      else if (pct >= 40) desc.textContent = "⚖️ Grade 4/5 Standard - Solid baseline, keep revising.";
+      else desc.textContent = "⚠️ Review Needed - Revisit the core concepts!";
+
+      document.getElementById('scorecard-modal').classList.remove('hidden');
+    }
+    function closeScorecardModal() { document.getElementById('scorecard-modal').classList.add('hidden'); }
+
+    /* ==================================================== */
+    /* TAB 1: COMPOSITION (DRAG/DROP)                       */
+    /* ==================================================== */
+    const tab1Labels = [
+      { id: 'A', name: "Nitrogen (N₂)", placed: false },
+      { id: 'B', name: "Oxygen (O₂)", placed: false },
+      { id: 'C', name: "Argon (Ar)", placed: false },
+      { id: 'D', name: "Carbon Dioxide (CO₂)", placed: false }
+    ];
+    let selectedTab1LabelId = null;
+
+    function renderTab1() {
+      const bank = document.getElementById('tab1-labels-bank');
+      if (!bank) return;
+      bank.innerHTML = '';
+      tab1Labels.forEach(lbl => {
+        const btn = document.createElement('button');
+        btn.onclick = () => selectTab1Label(lbl.id);
+        let style = "bg-white border-slate-200 text-slate-800 hover:border-sky-400";
+        let badge = `<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">Unmatched</span>`;
+        if (lbl.placed) {
+          style = "bg-emerald-50 border-emerald-300 text-emerald-950 font-semibold";
+          badge = `<span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-600 text-white font-mono">✓ Pin ${lbl.id}</span>`;
+        } else if (selectedTab1LabelId === lbl.id) {
+          style = "bg-amber-50 border-amber-400 text-amber-950 ring-2 ring-amber-300";
+          badge = `<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-mono animate-pulse">Selected</span>`;
+        }
+        btn.className = `w-full text-left p-3 rounded-lg border text-sm flex items-center justify-between transition cursor-pointer shadow-sm ${style}`;
+        btn.innerHTML = `<span>${lbl.name}</span><div>${badge}</div>`;
+        bank.appendChild(btn);
+      });
+
+      ['A', 'B', 'C', 'D'].forEach(pinKey => {
+        const circ = document.getElementById(`tcirc-${pinKey}`);
+        const txt = document.getElementById(`ttxt-${pinKey}`);
+        const item = tab1Labels.find(l => l.id === pinKey);
+        if (circ && txt) {
+          if (item && item.placed) {
+            circ.setAttribute('fill', '#059669'); circ.setAttribute('stroke', '#34d399'); circ.setAttribute('stroke-dasharray', 'none');
+          } else {
+            circ.setAttribute('fill', '#1e293b'); circ.setAttribute('stroke', '#94a3b8'); circ.setAttribute('stroke-dasharray', '3,3');
+          }
+        }
+      });
+      const score = tab1Labels.filter(l => l.placed).length;
+      document.getElementById('tab1-score').textContent = score;
+      
+      const status = document.getElementById('tab1-selection-status');
+      if (status) {
+        if (selectedTab1LabelId) {
+          status.textContent = `● Selected: "${tab1Labels.find(l=>l.id===selectedTab1LabelId).name}" - Now tap matching pin!`;
+          status.className = "text-amber-400 font-bold";
+        } else {
+          status.textContent = "● Tap a label on right, then tap letter circle A–D";
+          status.className = "text-sky-400 font-semibold";
+        }
+      }
+    }
+    function selectTab1Label(id) {
+      if (tab1Labels.find(l => l.id === id).placed) return;
+      selectedTab1LabelId = (selectedTab1LabelId === id) ? null : id;
+      renderTab1();
+    }
+    function handleTargetPinClick(pinId) {
+      if (!selectedTab1LabelId) return showToast("Select label first!", "bg-slate-700");
+      if (selectedTab1LabelId === pinId) {
+        tab1Labels.find(l => l.id === pinId).placed = true;
+        selectedTab1LabelId = null;
+        currentStreak++; updateStreakDisplay(); playSound('correct');
+        renderTab1();
+        if (tab1Labels.filter(l => l.placed).length === 4) showToast("Perfect!", "bg-emerald-600");
+      } else {
+        currentStreak = 0; updateStreakDisplay(); playSound('wrong');
+        showToast("Incorrect!", "bg-rose-600");
+      }
+    }
+    function resetTab1() {
+      tab1Labels.forEach(l => l.placed = false); tab1Labels.sort(()=>Math.random()-0.5); selectedTab1LabelId = null; renderTab1();
+    }
+
+    /* ==================================================== */
+    /* TAB 2: POLLUTANTS MATCHER                            */
+    /* ==================================================== */
+    const tab2Events = [
+      { pin: 1, desc: "A toxic, colourless, odourless gas that binds to haemoglobin in red blood cells, restricting oxygen transport.", pairedPin: null },
+      { pin: 2, desc: "A gas that dissolves in rainwater to form acid rain, causing damage to trees, lakes, and limestone buildings.", pairedPin: null },
+      { pin: 3, desc: "Gases formed at high temperatures in car engines that cause respiratory problems like asthma and contribute to acid rain.", pairedPin: null },
+      { pin: 4, desc: "Solid carbon particles that cause global dimming by reflecting sunlight and can cause health issues when inhaled.", pairedPin: null },
+      { pin: 5, desc: "A major greenhouse gas produced by the complete combustion of fossil fuels, contributing to global warming.", pairedPin: null }
+    ];
+    let selectedTab2PinId = null;
+    let shuffledPinsPool = [1, 2, 3, 4, 5];
+
+    function renderTab2() {
+      const slotsContainer = document.getElementById('tab2-function-slots');
+      if (!slotsContainer) return;
+      slotsContainer.innerHTML = '';
+      tab2Events.forEach(evt => {
+        const isCorrect = evt.pairedPin === evt.pin;
+        const card = document.createElement('div');
+        card.onclick = () => pairTab2Slot(evt);
+        let borderStyle = "border-slate-200 bg-white hover:border-rose-400";
+        let badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border">Tap gas (1-5) first</span>`;
+        if (evt.pairedPin !== null) {
+          if (isCorrect) { borderStyle = "border-emerald-300 bg-emerald-50 text-emerald-950"; badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white">✓ Gas ${evt.pairedPin}</span>`; } 
+          else { borderStyle = "border-rose-300 bg-rose-50 text-rose-950"; badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white">✗ Gas ${evt.pairedPin}</span>`; }
+        }
+        card.className = `p-3 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 shadow-sm ${borderStyle}`;
+        card.innerHTML = `<span class="text-sm font-medium leading-relaxed block py-1">${evt.desc}</span><div class="shrink-0">${badge}</div>`;
+        slotsContainer.appendChild(card);
+      });
+
+      for (let i = 1; i <= 5; i++) {
+        const circ = document.getElementById(`pin-circ-${i}`);
+        if (circ) {
+          if (selectedTab2PinId === i) { circ.classList.add('bg-amber-500'); circ.classList.remove('bg-rose-600'); }
+          else { circ.classList.add('bg-rose-600'); circ.classList.remove('bg-amber-500'); }
+        }
+      }
+      document.getElementById('tab2-score').textContent = tab2Events.filter(e => e.pairedPin === e.pin).length;
+    }
+    function selectTab2Pin(num) { selectedTab2PinId = (selectedTab2PinId === num) ? null : num; renderTab2(); }
+    function pairTab2Slot(evt) {
+      if (!selectedTab2PinId) return showToast("Select a gas (1-5) first!", "bg-slate-700");
+      evt.pairedPin = selectedTab2PinId;
+      if (evt.pairedPin === evt.pin) { currentStreak++; playSound('correct'); } else { currentStreak = 0; playSound('wrong'); }
+      updateStreakDisplay(); selectedTab2PinId = null; renderTab2();
+    }
+    function resetTab2() { tab2Events.forEach(e => e.pairedPin = null); tab2Events.sort(()=>Math.random()-0.5); renderTab2(); }
+
+    /* ==================================================== */
+    /* TAB 3: KEY TERM DEFINITIONS                          */
+    /* ==================================================== */
+    const tab3Terms = [
+      { id: 'cf', name: 'Carbon Footprint' },
+      { id: 'ccs', name: 'Carbon Capture & Storage' },
+      { id: 'ic', name: 'Incomplete Combustion' },
+      { id: 'gd', name: 'Global Dimming' }
+    ];
+    const tab3Defs = [
+      { id: 'cf', text: "The total amount of carbon dioxide and other greenhouse gases emitted over the full life cycle of a product, service, or event." },
+      { id: 'ccs', text: "Pumping CO₂ produced by power stations deep underground into porous rocks to prevent it entering the atmosphere." },
+      { id: 'ic', text: "Burning of fuels in a limited supply of oxygen, producing toxic carbon monoxide and solid carbon particulates (soot)." },
+      { id: 'gd', text: "A reduction in the amount of sunlight reaching the Earth's surface, caused by particulates in the atmosphere reflecting light back into space." }
+    ];
+    let tab3Matches = [ { targetId: 'cf', matchedMolId: null }, { targetId: 'ccs', matchedMolId: null }, { targetId: 'ic', matchedMolId: null }, { targetId: 'gd', matchedMolId: null } ];
+    let selectedTab3TermId = null;
+
+    function renderTab3() {
+      const bank = document.getElementById('tab3-molecules-bank');
+      const targetsContainer = document.getElementById('tab3-targets-container');
+      if (!bank || !targetsContainer) return;
+      bank.innerHTML = '';
+      tab3Terms.forEach(term => {
+        const isMatched = tab3Matches.some(m => m.matchedMolId === term.id && m.targetId === term.id);
+        const isSelected = selectedTab3TermId === term.id;
+        const btn = document.createElement('button');
+        btn.onclick = () => { if(!isMatched) { selectedTab3TermId = (selectedTab3TermId === term.id) ? null : term.id; renderTab3(); } };
+        let style = "bg-white hover:border-amber-400";
+        if (isMatched) style = "bg-emerald-50 border-emerald-300 opacity-60";
+        else if (isSelected) style = "bg-amber-100 border-amber-500 ring-2 ring-amber-300";
+        btn.className = `w-full text-left p-3 rounded-xl border text-sm transition flex items-center justify-between ${style}`;
+        btn.innerHTML = `<span class="font-semibold">${term.name}</span><span class="text-[10px] px-2 py-1 rounded bg-slate-100">${isMatched ? '✓' : 'Select'}</span>`;
+        bank.appendChild(btn);
+      });
+
+      targetsContainer.innerHTML = '';
+      tab3Defs.forEach(tgt => {
+        const matchRecord = tab3Matches.find(m => m.targetId === tgt.id);
+        const matchedTerm = matchRecord.matchedMolId ? tab3Terms.find(m => m.id === matchRecord.matchedMolId) : null;
+        const card = document.createElement('div');
+        card.onclick = () => {
+          if(!selectedTab3TermId) return showToast("Select term first!");
+          matchRecord.matchedMolId = selectedTab3TermId;
+          if(matchRecord.matchedMolId === tgt.id) { currentStreak++; playSound('correct'); } else { currentStreak=0; playSound('wrong'); }
+          updateStreakDisplay(); selectedTab3TermId = null; renderTab3();
+        };
+        let border = "border-slate-200 bg-white";
+        let badge = `<span class="text-[10px] px-2 py-1 bg-slate-100 rounded">Empty</span>`;
+        if (matchedTerm) {
+          if (matchRecord.matchedMolId === tgt.id) { border = "border-emerald-300 bg-emerald-50"; badge = `<span class="text-xs bg-emerald-600 text-white px-2 rounded">✓ ${matchedTerm.name}</span>`; }
+          else { border = "border-rose-300 bg-rose-50"; badge = `<span class="text-xs bg-rose-600 text-white px-2 rounded">✗ ${matchedTerm.name}</span>`; }
+        }
+        card.className = `p-3 rounded-xl border text-sm transition cursor-pointer flex justify-between gap-3 ${border}`;
+        card.innerHTML = `<p class="flex-grow">${tgt.text}</p><div class="shrink-0">${badge}</div>`;
+        targetsContainer.appendChild(card);
+      });
+      document.getElementById('tab3-score').textContent = tab3Matches.filter(m => m.matchedMolId === m.targetId).length;
+    }
+    function resetTab3() { tab3Matches.forEach(m => m.matchedMolId = null); tab3Terms.sort(()=>Math.random()-0.5); tab3Defs.sort(()=>Math.random()-0.5); renderTab3(); }
+
+    /* ==================================================== */
+    /* TAB 4: 20 MCQ QUIZ                                   */
+    /* ==================================================== */
+    const mcq20Data = [
+      { q: "What is the approximate percentage of nitrogen in the Earth's modern atmosphere?", options: ["21%", "78%", "0.04%", "0.9%"], ans: 1, rationale: "Nitrogen makes up roughly 78% of the modern atmosphere." },
+      { q: "Which of the following was likely the main gas in the Earth's early atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"], ans: 1, rationale: "Intense volcanic activity released huge amounts of CO₂, similar to Mars and Venus today." },
+      { q: "How did the oceans form on early Earth?", options: ["Ice comets melted", "Water vapour from volcanoes condensed as the Earth cooled", "Plants released water through transpiration", "Oxygen and hydrogen reacted in the atmosphere"], ans: 1, rationale: "As the Earth cooled below 100°C, volcanic water vapour condensed to form the first oceans." },
+      { q: "What was the main reason carbon dioxide levels decreased after the oceans formed?", options: ["It escaped into space", "It was burned by volcanic lava", "It dissolved in the water to form carbonate precipitates", "It turned into nitrogen"], ans: 2, rationale: "CO₂ dissolved in the oceans, forming insoluble carbonate compounds that precipitated as sediment." },
+      { q: "Which organisms were primarily responsible for first producing oxygen in the atmosphere?", options: ["Early land animals", "Algae and early plants", "Fungi", "Volcanic bacteria"], ans: 1, rationale: "Algae evolved roughly 2.7 billion years ago, producing oxygen via photosynthesis." },
+      { q: "What is the balanced symbol equation for photosynthesis?", options: ["6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂", "CO₂ + H₂O → C₆H₁₂O₆ + O₂", "6O₂ + 6H₂O → C₆H₁₂O₆ + 6CO₂", "CH₄ + 2O₂ → CO₂ + 2H₂O"], ans: 0, rationale: "6 molecules of CO₂ and H₂O produce 1 molecule of glucose and 6 of oxygen." },
+      { q: "Which of the following is NOT a greenhouse gas?", options: ["Carbon Dioxide", "Methane", "Water Vapour", "Nitrogen"], ans: 3, rationale: "Nitrogen does not absorb long-wavelength infrared radiation." },
+      { q: "How do greenhouse gases warm the Earth?", options: ["They absorb short-wavelength UV radiation from the sun", "They absorb long-wavelength infrared radiation re-emitted by the Earth", "They reflect sunlight back down to the surface", "They undergo exothermic chemical reactions in the air"], ans: 1, rationale: "Greenhouse gases let shortwave radiation pass, but absorb outgoing longwave (IR/heat) radiation." },
+      { q: "Which human activity is a major contributor to increasing methane levels?", options: ["Deforestation", "Burning coal", "Cattle farming and landfill sites", "Driving petrol cars"], ans: 2, rationale: "Digestive processes in ruminants (cattle) and decomposition in landfills release methane (CH₄)." },
+      { q: "What defines a 'carbon footprint'?", options: ["The physical mark left by burning coal", "The total amount of greenhouse gases emitted over a product's life cycle", "The amount of carbon dioxide absorbed by a tree", "The amount of carbon in fossil fuels"], ans: 1, rationale: "It encompasses all emissions across manufacturing, use, and disposal." },
+      { q: "Which gas is formed by the incomplete combustion of fossil fuels?", options: ["Carbon Dioxide", "Carbon Monoxide", "Sulfur Dioxide", "Nitrogen Dioxide"], ans: 1, rationale: "Insufficient oxygen leads to CO instead of fully oxidized CO₂." },
+      { q: "Why is carbon monoxide dangerous to humans?", options: ["It dissolves in lungs to form acid", "It causes global warming", "It binds to haemoglobin, preventing oxygen transport", "It irritates the eyes and causes smog"], ans: 2, rationale: "CO is toxic because it binds irreversibly to haemoglobin in red blood cells." },
+      { q: "Where does the sulfur in sulfur dioxide come from?", options: ["The air used for combustion", "Sulfur impurities naturally present in coal and oil", "The metal engine of a car", "The breakdown of plastic"], ans: 1, rationale: "Fossil fuels often contain sulfur compounds that oxidise during combustion." },
+      { q: "How are oxides of nitrogen (NOx) produced in car engines?", options: ["Nitrogen in the fuel burns", "Nitrogen and oxygen from the air react at very high temperatures", "Carbon reacts with nitrogen", "Ammonia breaks down"], ans: 1, rationale: "The high heat and pressure inside an internal combustion engine cause N₂ and O₂ from the air to react." },
+      { q: "What environmental problem is caused by sulfur dioxide and NOx?", options: ["Ozone depletion", "Global dimming", "Acid rain", "Eutrophication"], ans: 2, rationale: "They dissolve in atmospheric water to form sulfuric and nitric acids." },
+      { q: "What is 'global dimming'?", options: ["A reduction in sunlight reaching Earth due to particulates (soot)", "The sun running out of energy", "The greenhouse effect blocking light", "The moon eclipsing the sun more often"], ans: 0, rationale: "Particulates reflect sunlight back into space, reducing light at the surface." },
+      { q: "Which process trapped large amounts of carbon in rocks over millions of years?", options: ["Volcanic eruptions", "Formation of sedimentary rocks and fossil fuels from dead organisms", "Evaporation of the oceans", "Condensation of water vapour"], ans: 1, rationale: "Carbon was locked away as fossil fuels (coal, crude oil) and carbonates (limestone)." },
+      { q: "Why is it difficult to reduce global carbon footprints?", options: ["It requires global cooperation and alternative technologies are expensive", "People don't know what carbon is", "There are no alternative energy sources", "It is illegal to use renewable energy"], ans: 0, rationale: "Transitioning economies relies heavily on global agreements and overcoming the high cost of green tech." },
+      { q: "What happens to the wavelength of radiation when it is absorbed and re-emitted by the Earth?", options: ["It stays the same", "It changes from long-wavelength to short-wavelength", "It changes from short-wavelength (UV/visible) to long-wavelength (Infrared)", "It becomes a sound wave"], ans: 2, rationale: "The Earth absorbs shortwave solar radiation and re-radiates it as longer-wavelength thermal IR." },
+      { q: "Which of the following describes 'carbon capture and storage' (CCS)?", options: ["Planting more trees in cities", "Capturing CO₂ from power stations and storing it deep underground", "Using filters on car exhausts", "Storing solid carbon soot in landfills"], ans: 1, rationale: "CCS traps CO₂ emissions at the source and sequesters them in geological formations." }
+    ];
+    let userMCQAnswers = {};
+    let activeMCQIndices = Array.from({ length: 20 }, (_, i) => i);
+    let currentActivePointer = 0;
+    let isMCQTransitioning = false;
+
+    function renderMCQ20() {
+      const card = document.getElementById('tab4-single-card');
+      const summary = document.getElementById('tab4-summary');
+      if (currentActivePointer >= activeMCQIndices.length) { card.classList.add('hidden'); summary.classList.remove('hidden'); showMCQSummary(); return; }
+      
+      card.classList.remove('hidden'); summary.classList.add('hidden');
+      const qIndex = activeMCQIndices[currentActivePointer];
+      const qData = mcq20Data[qIndex];
+      const answered = userMCQAnswers[qIndex] !== undefined;
+
+      document.getElementById('tab4-current-q-num').textContent = currentActivePointer + 1;
+      document.getElementById('tab4-total-q-num').textContent = activeMCQIndices.length;
+      document.getElementById('tab4-progress-bar').style.width = `${((currentActivePointer + 1) / activeMCQIndices.length) * 100}%`;
+      
+      let scoreCount = 0; Object.keys(userMCQAnswers).forEach(k => { if (userMCQAnswers[k] === mcq20Data[k].ans) scoreCount++; });
+      document.getElementById('tab4-score').textContent = scoreCount;
+
+      let opts = '';
+      qData.options.forEach((opt, idx) => {
+        let style = "border-slate-200 bg-white hover:bg-slate-50";
+        if (answered) {
+          if (idx === qData.ans) style = "border-emerald-400 bg-emerald-50 font-bold";
+          else if (idx === userMCQAnswers[qIndex]) style = "border-rose-400 bg-rose-50 font-bold";
+          else style = "opacity-50";
+        }
+        opts += `<button onclick="handleMCQChoice(${idx})" ${answered?'disabled':''} class="w-full text-left p-3 rounded-xl border text-sm transition flex gap-3 ${style}"><span class="bg-slate-200 w-6 h-6 flex items-center justify-center rounded text-xs">${String.fromCharCode(65+idx)}</span><span>${opt}</span></button>`;
+      });
+
+      card.innerHTML = `<div class="bg-slate-50 rounded-2xl p-4 border shadow-sm">
+        <h3 class="font-bold text-slate-900 mb-3">${qData.q}</h3>
+        <div class="space-y-2">${opts}</div>
+        ${answered ? `<div class="mt-3 p-2 rounded text-xs ${userMCQAnswers[qIndex]===qData.ans ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'}">${userMCQAnswers[qIndex]===qData.ans?'✓':'✗'} ${qData.rationale}</div>` : ''}
+      </div>`;
+    }
+    function handleMCQChoice(idx) {
+      if (isMCQTransitioning) return;
+      const qIndex = activeMCQIndices[currentActivePointer];
+      userMCQAnswers[qIndex] = idx; isMCQTransitioning = true; renderMCQ20();
+      if(idx === mcq20Data[qIndex].ans) { currentStreak++; playSound('correct'); } else { currentStreak = 0; playSound('wrong'); }
+      updateStreakDisplay();
+      setTimeout(() => { currentActivePointer++; isMCQTransitioning = false; renderMCQ20(); }, 1800);
+    }
+    function showMCQSummary() {
+      let score = 0; activeMCQIndices.forEach(idx => { if (userMCQAnswers[idx] === mcq20Data[idx].ans) score++; });
+      document.getElementById('tab4-final-score').textContent = score;
+      if (score === activeMCQIndices.length) { document.getElementById('btn-retest-missed').classList.add('hidden'); playSound('complete'); } 
+      else { document.getElementById('btn-retest-missed').classList.remove('hidden'); document.getElementById('retest-count').textContent = activeMCQIndices.length - score; }
+    }
+    function retestMissedQuestions() {
+      activeMCQIndices = activeMCQIndices.filter(idx => userMCQAnswers[idx] !== mcq20Data[idx].ans);
+      activeMCQIndices.forEach(idx => delete userMCQAnswers[idx]);
+      currentActivePointer = 0; renderMCQ20();
+    }
+    function resetMCQ20() { userMCQAnswers = {}; activeMCQIndices = Array.from({length:20},(_,i)=>i); currentActivePointer = 0; renderMCQ20(); }
+
+    /* ==================================================== */
+    /* TOUCH-DRAG LOGIC                                     */
+    /* ==================================================== */
+    let dragSrcList = null, dragSrcIdx = -1, dragOverIdx = -1;
+    function initTouchDrag(el, type, idx) {
+      el.setAttribute('draggable', 'true');
+      el.addEventListener('dragstart', (e) => { dragSrcList = type; dragSrcIdx = idx; el.classList.add('dragging-card'); });
+      el.addEventListener('dragover', (e) => e.preventDefault());
+      el.addEventListener('drop', (e) => { e.preventDefault(); if (dragSrcList === type && dragSrcIdx !== idx) reorderArrayItems(type, dragSrcIdx, idx); });
+      el.addEventListener('dragend', () => el.classList.remove('dragging-card'));
+      
+      // Touch support
+      el.addEventListener('touchstart', () => { dragSrcList = type; dragSrcIdx = idx; dragOverIdx = idx; el.classList.add('dragging-card'); }, {passive:false});
+      el.addEventListener('touchmove', (e) => {
+        if(dragSrcList !== type) return; e.preventDefault();
+        const under = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+        if(under) { const c = under.closest('[data-drag-index]'); if(c && c.dataset.listType === type) dragOverIdx = parseInt(c.dataset.dragIndex); }
+      }, {passive:false});
+      el.addEventListener('touchend', () => {
+        el.classList.remove('dragging-card');
+        if(dragSrcList === type && dragOverIdx !== -1 && dragSrcIdx !== dragOverIdx) reorderArrayItems(type, dragSrcIdx, dragOverIdx);
+      });
+    }
+    function reorderArrayItems(type, from, to) {
+      if (type === 'evo') { const i = evoList.splice(from, 1)[0]; evoList.splice(to, 0, i); renderEvo(); }
+      else if (type === 'gh') { const i = ghList.splice(from, 1)[0]; ghList.splice(to, 0, i); renderGh(); }
+    }
+
+    const evoOrig = [
+      { order: 1, text: "Intense volcanic activity releases massive amounts of CO₂, water vapour, and nitrogen into the early atmosphere." },
+      { order: 2, text: "The Earth gradually cools, allowing water vapour to condense and form the first oceans." },
+      { order: 3, text: "Large amounts of CO₂ dissolve in the oceans, forming carbonate precipitates that form sedimentary rocks." },
+      { order: 4, text: "Algae and early plants evolve, starting to photosynthesise (consuming CO₂ and releasing O₂)." },
+      { order: 5, text: "Over billions of years, oxygen builds up in the atmosphere, enabling the evolution of complex animals." },
+      { order: 6, text: "Dead organisms are buried under sediment, trapping carbon over millions of years to form fossil fuels." }
+    ];
+    let evoList = [...evoOrig]; let tab5Score = 0;
+    function renderEvo() {
+      const c = document.getElementById('evolution-sentences-list'); c.innerHTML = '';
+      evoList.forEach((item, idx) => {
+        const row = document.createElement('div'); row.className = "p-3 rounded-lg border bg-white shadow-sm flex items-center justify-between touch-draggable"; row.dataset.dragIndex = idx; row.dataset.listType = 'evo';
+        row.innerHTML = `<div class="flex items-center gap-3"><span class="text-emerald-700 bg-emerald-50 p-2 rounded">☰</span><p class="text-sm">${item.text}</p></div>
+        <div class="flex flex-col"><button onclick="evoList.splice(${idx},1)[0];evoList.splice(${idx-1},0,item);renderEvo()" ${idx===0?'disabled':''} class="p-1">▲</button><button onclick="evoList.splice(${idx},1)[0];evoList.splice(${idx+1},0,item);renderEvo()" ${idx===5?'disabled':''} class="p-1">▼</button></div>`;
+        initTouchDrag(row, 'evo', idx); c.appendChild(row);
+      });
+    }
+    function checkEvolutionSequence() {
+      tab5Score = evoList.filter((e, i) => e.order === i + 1).length;
+      document.getElementById('tab5-score').textContent = tab5Score;
+      const fb = document.getElementById('evolution-feedback-banner'); fb.classList.remove('hidden');
+      if(tab5Score === 6) { playSound('complete'); fb.className="mt-1 p-2 bg-emerald-100 text-emerald-900 rounded"; fb.textContent="Perfect Timeline! (+6 Marks)"; }
+      else { playSound('wrong'); fb.className="mt-1 p-2 bg-amber-100 text-amber-900 rounded"; fb.textContent=`${tab5Score}/6 correct. Check order of oceans vs plants.`; }
+    }
+    function resetEvolutionSequence() { evoList.sort(()=>Math.random()-0.5); document.getElementById('evolution-feedback-banner').classList.add('hidden'); renderEvo(); }
+
+    const ghOrig = [
+      { order: 1, text: "The Sun emits electromagnetic radiation, mostly at short wavelengths (like visible light and UV)." },
+      { order: 2, text: "Short-wavelength radiation passes right through the Earth's atmosphere without being absorbed." },
+      { order: 3, text: "The Earth's surface absorbs this shortwave radiation and warms up." },
+      { order: 4, text: "The warmed Earth re-emits energy back outwards as long-wavelength infrared radiation (thermal heat)." },
+      { order: 5, text: "Greenhouse gases (CO₂, CH₄, H₂O) in the atmosphere absorb the outgoing long-wavelength radiation." },
+      { order: 6, text: "This trapped energy increases the thermal store of the atmosphere, raising the global temperature." }
+    ];
+    let ghList = [...ghOrig]; let tab6Score = 0;
+    function renderGh() {
+      const c = document.getElementById('greenhouse-sentences-container'); c.innerHTML = '';
+      ghList.forEach((item, idx) => {
+        const row = document.createElement('div'); row.className = "p-3 rounded-lg border bg-white shadow-sm flex items-center justify-between touch-draggable"; row.dataset.dragIndex = idx; row.dataset.listType = 'gh';
+        row.innerHTML = `<div class="flex items-center gap-3"><span class="text-orange-700 bg-orange-50 p-2 rounded">☰</span><p class="text-sm">${item.text}</p></div>
+        <div class="flex flex-col"><button onclick="ghList.splice(${idx},1)[0];ghList.splice(${idx-1},0,item);renderGh()" ${idx===0?'disabled':''} class="p-1">▲</button><button onclick="ghList.splice(${idx},1)[0];ghList.splice(${idx+1},0,item);renderGh()" ${idx===5?'disabled':''} class="p-1">▼</button></div>`;
+        initTouchDrag(row, 'gh', idx); c.appendChild(row);
+      });
+    }
+    function checkGreenhouseOrder() {
+      tab6Score = ghList.filter((e, i) => e.order === i + 1).length;
+      document.getElementById('tab6-score').textContent = tab6Score;
+      const fb = document.getElementById('greenhouse-feedback'); fb.classList.remove('hidden');
+      if(tab6Score === 6) { playSound('complete'); fb.className="mt-1 p-2 bg-emerald-100 text-emerald-900 rounded"; fb.textContent="Perfect Mechanism! (+6 Marks)"; }
+      else { playSound('wrong'); fb.className="mt-1 p-2 bg-amber-100 text-amber-900 rounded"; fb.textContent=`${tab6Score}/6 correct. Remember: Shortwave in, Longwave out.`; }
+    }
+    function resetGreenhouseOrder() { ghList.sort(()=>Math.random()-0.5); document.getElementById('greenhouse-feedback').classList.add('hidden'); renderGh(); }
+
+
+    /* ==================================================== */
+    /* TAB 7: 6-MARK QUESTIONS                              */
+    /* ==================================================== */
+    const tab7Questions = {
+      1: {
+        category: "AQA 4.9.1 • Evolution of the Atmosphere",
+        prompt: "Describe how the Earth's early atmosphere evolved from one consisting mainly of carbon dioxide to the modern atmosphere we have today. [6 marks]",
+        terms: [ { word: "volcanoes", regex: /volcan/i }, { word: "water vapour condensed", regex: /condens|ocean/i }, { word: "dissolved", regex: /dissolv/i }, { word: "carbonates / sedimentary", regex: /carbonate|sediment/i }, { word: "algae / plants", regex: /algae|plant/i }, { word: "photosynthesis", regex: /photosynthes/i }, { word: "oxygen increased", regex: /oxygen|o2\s*(increas|produc|built)/i }, { word: "fossil fuels", regex: /fossil|oil|coal/i } ],
+        highModel: "During the first billion years, intense volcanic activity released water vapour and large amounts of carbon dioxide. As the Earth cooled, water vapour condensed to form the oceans. CO₂ then dissolved into the oceans, forming insoluble carbonate precipitates that became sedimentary rocks, significantly reducing atmospheric CO₂. Around 2.7 billion years ago, algae and early plants evolved. They absorbed CO₂ for photosynthesis and produced oxygen. Over billions of years, photosynthesis caused oxygen levels to rise sufficiently to support animal life. Finally, carbon from dead plants and plankton became trapped under sediment, forming fossil fuels, further locking away carbon.",
+        medModel: "At first there were lots of volcanoes that released CO₂ and water. The water turned into oceans. The CO₂ dissolved into the oceans and made rocks at the bottom. Then plants evolved and started doing photosynthesis. This took in the carbon dioxide and released oxygen into the air. Slowly the oxygen went up to 21% and carbon dioxide went down."
+      },
+      2: {
+        category: "AQA 4.9.2 • Greenhouse Effect & Climate Change",
+        prompt: "Explain the greenhouse effect and evaluate how human activities are contributing to global climate change. [6 marks]",
+        terms: [ { word: "short-wavelength", regex: /short(\-|\s)wavelength|uv/i }, { word: "absorbed / warms", regex: /absorb|warm/i }, { word: "re-emitted / long-wavelength", regex: /re(-)?emit|long(\-|\s)wavelength|infrared/i }, { word: "greenhouse gases", regex: /greenhouse\s+gas|co2|methane/i }, { word: "trapped / temperature rises", regex: /trap|temperatur(e)?\s+ris/i }, { word: "combustion / fossil fuels", regex: /combustion|burn|fossil/i }, { word: "deforestation", regex: /deforest/i }, { word: "agriculture / cattle", regex: /agricultur|cattle|cow|landfill/i } ],
+        highModel: "The greenhouse effect occurs when short-wavelength radiation from the Sun passes through the atmosphere and warms the Earth's surface. The Earth re-emits this energy as long-wavelength infrared radiation. Greenhouse gases like CO₂ and methane absorb this outgoing long-wavelength radiation, trapping thermal energy and increasing global temperatures. Humans are worsening this: combusting fossil fuels (coal/oil) releases locked CO₂, while deforestation reduces CO₂ absorption via photosynthesis. Furthermore, increased cattle agriculture and landfill waste release massive amounts of methane. This enhanced greenhouse effect is causing rapid global warming.",
+        medModel: "Heat from the sun comes down as short waves. The earth absorbs it and sends it back as long infrared waves. Greenhouse gases like carbon dioxide trap these long waves in the atmosphere which heats up the earth. Humans are cutting down trees (deforestation) so less CO₂ is taken in, and we burn fossil fuels which adds more CO₂. Cows also produce methane which makes it worse."
+      },
+      3: {
+        category: "AQA 4.9.3 • Atmospheric Pollutants",
+        prompt: "Discuss the formation and environmental/health impacts of THREE atmospheric pollutants produced by burning fossil fuels. [6 marks]",
+        terms: [ { word: "incomplete combustion", regex: /incomplete/i }, { word: "carbon monoxide", regex: /carbon\s+monoxide|co\b/i }, { word: "toxic / binds to haemoglobin", regex: /toxic|haemoglobin/i }, { word: "particulates / soot", regex: /particulate|soot/i }, { word: "global dimming", regex: /dimming/i }, { word: "sulfur dioxide", regex: /sulfur|so2/i }, { word: "oxides of nitrogen", regex: /nitrogen|nox/i }, { word: "acid rain / asthma", regex: /acid|asthma|respiratory/i } ],
+        highModel: "When fossil fuels undergo incomplete combustion due to insufficient oxygen, carbon monoxide (CO) and particulates (soot) are formed. CO is a toxic, colourless gas that binds to haemoglobin, restricting oxygen transport in the blood. Particulates cause respiratory issues and reflect sunlight, causing global dimming. Secondly, many fuels contain sulfur impurities which oxidise during combustion to form sulfur dioxide (SO₂). Thirdly, the high temperatures inside car engines cause atmospheric nitrogen and oxygen to react, forming oxides of nitrogen (NOx). Both SO₂ and NOx dissolve in rainwater to produce acid rain, which damages limestone buildings and kills aquatic life, while NOx also exacerbates asthma.",
+        medModel: "Burning fossil fuels makes several bad gases. Incomplete combustion makes carbon monoxide which is toxic because it stops blood carrying oxygen. It also makes soot (particulates) which causes global dimming. Fuels have sulfur in them which burns to make sulfur dioxide. In engines it gets so hot that nitrogen and oxygen react to make nitrogen oxides. These last two gases dissolve in clouds to make acid rain."
+      }
+    };
+    
+    let currentTab7QId = 1; let tab7Answers = {1:'',2:'',3:''}; let tab7Scores = {1:0,2:0,3:0}; let tab7Evaluated = {1:false,2:false,3:false};
+
+    function loadTab7Question(qNum) {
+      tab7Answers[currentTab7QId] = document.getElementById('tab7-student-answer').value;
+      currentTab7QId = qNum;
+      [1,2,3].forEach(n => document.getElementById(`tab7-qbtn-${n}`).className = n===qNum ? "px-2 py-0.5 rounded text-xs font-bold bg-indigo-600 text-white" : "px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-700");
+      const q = tab7Questions[qNum];
+      document.getElementById('tab7-q-category').textContent = q.category;
+      document.getElementById('tab7-prompt-text').textContent = q.prompt;
+      document.getElementById('tab7-student-answer').value = tab7Answers[qNum];
+      
+      document.getElementById('tab7-total-terms-count').textContent = q.terms.length;
+      const chips = document.getElementById('tab7-keywords-chips'); chips.innerHTML='';
+      
+      // Shuffle the hint terms so they are not in chronological order
+      const shuffledTerms = [...q.terms].sort(() => Math.random() - 0.5);
+      
+      shuffledTerms.forEach(t => { 
+          chips.innerHTML += `<span id="kw-${t.word.replace(/[^a-z]/gi,'')}" class="px-1 py-0.5 rounded text-[10px] font-mono bg-slate-200 text-slate-600 border">${t.word}</span>`; 
+      });
+
+      if (tab7Evaluated[qNum]) { document.getElementById('tab7-models-section').classList.remove('hidden'); document.getElementById('tab7-models-placeholder').classList.add('hidden'); document.getElementById('tab7-honesty-btn').classList.remove('hidden'); } 
+      else { document.getElementById('tab7-models-section').classList.add('hidden'); document.getElementById('tab7-models-placeholder').classList.remove('hidden'); document.getElementById('tab7-honesty-btn').classList.add('hidden'); }
+      
+      document.getElementById('tab7-current-mark-display').textContent = `Mark: ${tab7Scores[qNum]} / 6`;
+      analyzeTab7Text();
+    }
+    
+    function analyzeTab7Text() {
+      const text = document.getElementById('tab7-student-answer').value;
+      const q = tab7Questions[currentTab7QId];
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      document.getElementById('tab7-word-count').textContent = words + " words";
+      let matched = 0;
+      q.terms.forEach(t => {
+        const c = document.getElementById(`kw-${t.word.replace(/[^a-z]/gi,'')}`);
+        if(t.regex.test(text)) { matched++; if(c) c.className="px-1 py-0.5 rounded text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold border-emerald-300"; }
+        else if(c) c.className="px-1 py-0.5 rounded text-[10px] font-mono bg-slate-200 text-slate-600 border";
+      });
+      document.getElementById('tab7-matched-terms-count').textContent = matched;
+      const p = document.getElementById('tab7-predicted-level');
+      if(matched>=6 && words>50) p.innerHTML="<span class='text-emerald-600'>Level 3 (5-6)</span>";
+      else if(matched>=3) p.innerHTML="<span class='text-sky-600'>Level 2 (3-4)</span>";
+      else if(words>10) p.innerHTML="<span class='text-amber-600'>Level 1 (1-2)</span>";
+      else p.textContent="Start typing...";
+    }
+    
+    function evaluateAndShowModels() {
+      const text = document.getElementById('tab7-student-answer').value;
+      const q = tab7Questions[currentTab7QId];
+      let matched = 0; q.terms.forEach(t => { if(t.regex.test(text)) matched++; });
+      let score = 0; if(matched>=6) score=6; else if(matched>=4) score=4; else if(matched>=2) score=2; else if(text.length>20) score=1;
+      
+      tab7Scores[currentTab7QId] = score; tab7Evaluated[currentTab7QId] = true;
+      document.getElementById('tab7-current-mark-display').textContent = `Mark: ${score} / 6`;
+      document.getElementById(`tab7-badge-${currentTab7QId}`).textContent = `(${score}/6)`;
+      
+      document.getElementById('model-high-text').textContent = q.highModel;
+      document.getElementById('model-high-commentary').textContent = "Excellent use of required scientific terminology. Full marks awarded.";
+      document.getElementById('model-med-text').textContent = q.medModel;
+
+      document.getElementById('tab7-models-section').classList.remove('hidden');
+      document.getElementById('tab7-models-placeholder').classList.add('hidden');
+      document.getElementById('tab7-honesty-btn').classList.remove('hidden');
+      showToast(`Q${currentTab7QId} Evaluated: ${score}/6 marks`, "bg-indigo-600");
+    }
+    
+    function applyHonestyBonus() {
+      if(tab7Scores[currentTab7QId] < 6) {
+        tab7Scores[currentTab7QId]++;
+        document.getElementById('tab7-current-mark-display').textContent = `Mark: ${tab7Scores[currentTab7QId]} / 6`;
+        document.getElementById(`tab7-badge-${currentTab7QId}`).textContent = `(${tab7Scores[currentTab7QId]}/6)`;
+      }
+    }
+    function clearTab7Answer() { document.getElementById('tab7-student-answer').value=''; tab7Evaluated[currentTab7QId]=false; tab7Scores[currentTab7QId]=0; loadTab7Question(currentTab7QId); }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      tab1Labels.sort(()=>Math.random()-0.5); renderTab1();
+      tab2Events.sort(()=>Math.random()-0.5); shuffledPinsPool.sort(()=>Math.random()-0.5); renderTab2();
+      tab3Terms.sort(()=>Math.random()-0.5); tab3Defs.sort(()=>Math.random()-0.5); renderTab3();
+      renderMCQ20();
+      resetEvolutionSequence();
+      resetGreenhouseOrder();
+      loadTab7Question(1);
+    });
+  </script>
+</body>
+</html>
